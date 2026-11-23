@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Pepper - Secondo schermo</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(circle at 50% 30%, #152238, #070b14 70%);
+    color: #eaf2ff; overflow: hidden; height: 100vh;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+  }
+  #stage { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .hidden { display: none !important; }
+
+  /* clock */
+  #clock .time { font-size: 20vw; font-weight: 700; letter-spacing: 2px;
+    text-shadow: 0 0 40px rgba(80,150,255,.5); font-variant-numeric: tabular-nums; }
+  #clock .date { font-size: 5vw; opacity: .8; margin-top: 1vh; text-transform: capitalize; }
+
+  /* message */
+  #message { padding: 6vh 6vw; }
+  #message .big { font-size: 9vw; font-weight: 700; line-height: 1.1;
+    text-shadow: 0 0 30px rgba(80,150,255,.45); }
+  #message .sub { font-size: 4vw; opacity: .75; margin-top: 3vh; }
+
+  /* image / site */
+  #imgwrap { width: 100%; height: 100%; }
+  #imgwrap img { width: 100%; height: 100%; object-fit: contain; }
+  #sitewrap { width: 100%; height: 100%; }
+  #sitewrap iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+
+  #badge { position: fixed; bottom: 2.5vh; right: 3vw; font-size: 2.6vw; opacity: .35;
+    letter-spacing: 2px; }
+  #offline { position: fixed; top: 2.5vh; left: 3vw; font-size: 2.6vw; color: #ff8080; opacity: 0; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="clock">
+      <div class="time">--:--</div>
+      <div class="date">&nbsp;</div>
+    </div>
+    <div id="message" class="hidden">
+      <div class="big"></div>
+      <div class="sub"></div>
+    </div>
+    <div id="imgwrap" class="hidden"><img alt=""></div>
+    <div id="sitewrap" class="hidden"><iframe title="site"></iframe></div>
+  </div>
+  <div id="badge">PEPPER</div>
+  <div id="offline">offline</div>
+
+<script>
+  var els = {
+    clock: document.getElementById('clock'),
+    message: document.getElementById('message'),
+    imgwrap: document.getElementById('imgwrap'),
+    sitewrap: document.getElementById('sitewrap'),
+    time: document.querySelector('#clock .time'),
+    date: document.querySelector('#clock .date'),
+    big: document.querySelector('#message .big'),
+    sub: document.querySelector('#message .sub'),
+    img: document.querySelector('#imgwrap img'),
+    iframe: document.querySelector('#sitewrap iframe'),
+    offline: document.getElementById('offline')
+  };
+  var current = { mode: 'clock', text: '', sub: '', url: '', rev: -1 };
+
+  function show(mode) {
+    for (var k of ['clock','message','imgwrap','sitewrap'])
+      els[k].classList.toggle('hidden', !((mode==='clock'&&k==='clock')||(mode==='message'&&k==='message')||(mode==='image'&&k==='imgwrap')||(mode==='site'&&k==='sitewrap')));
+  }
+
+  function tickClock() {
+    var d = new Date();
+    var hh = String(d.getHours()).padStart(2,'0');
+    var mm = String(d.getMinutes()).padStart(2,'0');
+    var ss = String(d.getSeconds()).padStart(2,'0');
+    els.time.textContent = hh + ':' + mm;
+    els.time.setAttribute('data-s', ss);
+    els.date.textContent = d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+  }
+  setInterval(tickClock, 1000); tickClock();
+
+  function apply(s) {
+    if (s.rev === current.rev) return;
+    current = s;
+    show(s.mode || 'clock');
+    if (s.mode === 'message') { els.big.textContent = s.text || ''; els.sub.textContent = s.sub || ''; }
+    else if (s.mode === 'image') { if (els.img.src !== s.url) els.img.src = s.url || ''; }
+    else if (s.mode === 'site') { if (els.iframe.src !== s.url) els.iframe.src = s.url || ''; }
+  }
+
+  function poll() {
+    fetch('state.json?t=' + Date.now(), {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(s){ els.offline.style.opacity = 0; apply(s); })
+      .catch(function(){ els.offline.style.opacity = .8; });
+  }
+  setInterval(poll, 700); poll();
+</script>
+</body>
+</html>

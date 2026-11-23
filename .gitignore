@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Cache audio scaricato (YouTube ecc.) e file audio temporanei
+cache_audio/
+*.wav
+
+# Report generato (contiene dati specifici del robot)
+Report_Pepper.pdf
+
+# Copie di backup della vecchia interfaccia
+*_vecchia_interfaccia.py
+
+# Varie di sistema
+Thumbs.db
+desktop.ini
+.DS_Store

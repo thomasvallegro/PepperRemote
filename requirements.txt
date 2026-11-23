@@ -1,0 +1,22 @@
+# Nucleo (naoqi_lite, remote_cli, GUI di base): solo libreria standard di Python 3
+# (Tkinter incluso nell'installer ufficiale python.org). Nessuna dipendenza.
+
+# --- Dipendenze opzionali, per funzioni specifiche ---
+
+# Interfaccia grafica moderna (tema scuro Windows 11)
+sv-ttk
+
+# Scheda Audio: audio di sistema del PC -> casse del robot
+PyAudioWPatch
+numpy
+
+# Scheda Audio: riproduzione da YouTube
+yt-dlp
+imageio-ffmpeg
+
+# Scheda Visione: riconoscimento oggetti dalla telecamera del robot
+mediapipe
+Pillow
+
+# Generazione del report PDF (report_gen.py)
+reportlab
